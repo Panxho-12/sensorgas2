@@ -38,48 +38,46 @@ public class MainActivity extends AppCompatActivity {
         startPeriodicUpdate();
     }
 
-    public void ventiladorOn(View view){
-        String url = "https://api.thingspeak.com/update?api_key=1JS2FJQ0VARR41LI&field2=1";
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get(url, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(statusCode == 200){
-                    String response = new String(responseBody);
-                    Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
-                }
-            }
+    public void ventiladorOn(View view) {
+        final String url = "https://api.thingspeak.com/update?api_key=1JS2FJQ0VARR41LI&field2=1";
+        final AsyncHttpClient client = new AsyncHttpClient();
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-            }
-        });
-
-
-
-
+        // Llamada inicial
+        sendRequest(client, url);
     }
 
-    public void ventiladorOff(View view){
 
-        String url = "https://api.thingspeak.com/update?api_key=1JS2FJQ0VARR41LI&field2=0";
-        AsyncHttpClient client = new AsyncHttpClient();
+
+
+
+    public void ventiladorOff(View view) {
+        final String url = "https://api.thingspeak.com/update?api_key=1JS2FJQ0VARR41LI&field2=0";
+        final AsyncHttpClient client = new AsyncHttpClient();
+
+        // Llamada inicial
+        sendRequest(client, url);
+    }
+
+    private void sendRequest(final AsyncHttpClient client, final String url) {
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(statusCode == 200){
+                if (statusCode == 200) {
                     String response = new String(responseBody);
                     Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
+
+                    // Si la respuesta es 0, realizar una llamada recursiva
+                    if ("0".equals(response.trim())) {
+                        sendRequest(client, url);
+                    }
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                // Manejar la lógica de falla según sea necesario
             }
         });
-
     }
 
     private void startPeriodicUpdate() {
